@@ -5,28 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TAMM Family Space</title>
     
-    <script>
-        window.addEventListener('error', function(e) {
-            document.body.innerHTML = `
-                <div style="padding: 20px; font-family: sans-serif; color: #7f1d1d; background: #fef2f2; border: 1px solid #ef4444; margin: 20px; border-radius: 8px;">
-                    <h2 style="margin-top:0">⚠️ Application Error</h2>
-                    <p><strong>Error:</strong> ${e.message}</p>
-                    <p><strong>Location:</strong> Line ${e.lineno}, Column ${e.colno}</p>
-                    <p>If you see this, a script failed to load or a variable is missing.</p>
-                </div>
-            `;
-        });
-    </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.1/lib/index.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
     
-    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js" crossorigin></script>
-    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
     
-    <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.23.6/babel.min.js"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/lucide-react@0.300.0/dist/umd/lucide-react.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
 
     <style>
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -37,343 +21,239 @@
 </head>
 <body class="bg-slate-50 text-slate-900">
 
-    <div id="root">
-        <div class="flex items-center justify-center h-screen text-slate-500">
-            Loading Application...
-        </div>
-    </div>
+    <div id="root"></div>
 
     <script type="text/babel">
-        // --- 0. SAFE SETUP ---
-        // Ensure libraries loaded correctly
-        if (!window.React || !window.ReactDOM || !window.lucideReact) {
-            throw new Error("One of the required libraries (React, ReactDOM, or Lucide) failed to load.");
-        }
-
         const { useState, useMemo } = React;
-        
-        // Safely extract icons. If one is missing, it won't crash the whole app.
-        const Icons = window.lucideReact;
-        const getIcon = (name) => Icons[name] || Icons.HelpCircle || (() => null);
 
-        // Extract the specific icons we need
-        const Baby = getIcon("Baby");
-        const HeartPulse = getIcon("HeartPulse");
-        const ShieldCheck = getIcon("ShieldCheck");
-        const School = getIcon("School");
-        const Building2 = getIcon("Building2");
-        const Globe2 = getIcon("Globe2");
-        const HandHeart = getIcon("HandHeart");
-        const Stethoscope = getIcon("Stethoscope");
-        const ClipboardCheck = getIcon("ClipboardCheck");
-        const FileText = getIcon("FileText");
-        const Sparkles = getIcon("Sparkles");
-        const UserRound = getIcon("UserRound");
-        const CalendarCheck = getIcon("CalendarCheck");
-        const AlertTriangle = getIcon("AlertTriangle");
-        const CheckCircle2 = getIcon("CheckCircle2");
-        const Activity = getIcon("Activity");
-        const Users = getIcon("Users");
-        const Briefcase = getIcon("Briefcase");
-        const Home = getIcon("Home");
-        const BookOpen = getIcon("BookOpen");
-        const ChevronRight = getIcon("ChevronRight");
-        const Search = getIcon("Search");
-        const Bell = getIcon("Bell");
-        const ClipboardList = getIcon("ClipboardList");
-        const MapPin = getIcon("MapPin");
+        // --- 1. EMBEDDED ICONS (No external library needed) ---
+        // This ensures icons load even if the external script is blocked.
+        const IconBase = ({ d, className }) => (
+            <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                className={className}
+            >
+                <path d={d} />
+            </svg>
+        );
 
-        // --- UI COMPONENTS ---
-        
-        const Card = ({ className, children }) => (
-            <div className={`rounded-xl border bg-white text-slate-950 shadow-sm ${className || ''}`}>{children}</div>
-        );
-        const CardHeader = ({ className, children }) => (
-            <div className={`flex flex-col space-y-1.5 p-6 ${className || ''}`}>{children}</div>
-        );
-        const CardTitle = ({ className, children }) => (
-            <h3 className={`text-2xl font-semibold leading-none tracking-tight ${className || ''}`}>{children}</h3>
-        );
-        const CardDescription = ({ className, children }) => (
-            <p className={`text-sm text-slate-500 ${className || ''}`}>{children}</p>
-        );
-        const CardContent = ({ className, children }) => (
-            <div className={`p-6 pt-0 ${className || ''}`}>{children}</div>
-        );
+        const Icons = {
+            Home: (p) => <IconBase {...p} d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />,
+            Baby: (p) => <IconBase {...p} d="M9 12h.01M15 12h.01M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5M19 6.3a9 9 0 0 1 1.8 3.9 2 2 0 0 1 0 3.6 9 9 0 0 1-17.6 0A2 2 0 0 1 3.2 10.2 9 9 0 0 1 19 6.3z" />,
+            HeartPulse: (p) => <IconBase {...p} d="M19 14c1.49-1.28 3.6-1.28 5.1-.01 1.25 1.07 1.6 2.89.51 4.41-1.39 1.94-5.22 4.6-5.61 4.86-.53.36-1.5.36-2.03-.01C16.5 22.95 12.5 20.12 11 18c-1.25-1.78-1-4.05.59-5.32 1.6-1.29 4-1.12 5.41.32l1 1 .6-1z M2 12h5l3 7 4-13 3 8h5" />,
+            ShieldCheck: (p) => <IconBase {...p} d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zM9 12l2 2 4-4" />,
+            School: (p) => <IconBase {...p} d="m4 6 8-4 8 4M4 6v14l8-4 8 4V6M4 6l8 4 8-4" />,
+            Stethoscope: (p) => <IconBase {...p} d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3" />,
+            ClipboardCheck: (p) => <IconBase {...p} d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2 M15 2H9a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z M9 14l2 2 4-4" />,
+            FileText: (p) => <IconBase {...p} d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8" />,
+            Sparkles: (p) => <IconBase {...p} d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />,
+            UserRound: (p) => <IconBase {...p} d="M18 20a6 6 0 0 0-12 0 M12 14a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" />,
+            Activity: (p) => <IconBase {...p} d="M22 12h-4l-3 9L9 3l-3 9H2" />,
+            Users: (p) => <IconBase {...p} d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M22 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75" />,
+            Briefcase: (p) => <IconBase {...p} d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16 M2 20h20M4 20v-4a2 2 0 1 1 4 0v4M16 20v-4a2 2 0 1 1 4 0v4" />,
+            BookOpen: (p) => <IconBase {...p} d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />,
+            Search: (p) => <IconBase {...p} d="m21 21-4.3-4.3 M11 17a6 6 0 1 0 0-12 6 6 0 0 0 0 12z" />,
+            ClipboardList: (p) => <IconBase {...p} d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2 M15 2H9a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z M12 11h4 M12 16h4 M8 11h.01 M8 16h.01" />,
+            HandHeart: (p) => <IconBase {...p} d="M11 14h2a2 2 0 1 0 0-4h-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-1z" />
+        };
+
+        // --- 2. UI COMPONENTS (Tailwind) ---
+
+        const Card = ({ className, children }) => <div className={`rounded-xl border bg-white text-slate-950 shadow-sm ${className || ''}`}>{children}</div>;
+        const CardHeader = ({ className, children }) => <div className={`flex flex-col space-y-1.5 p-6 ${className || ''}`}>{children}</div>;
+        const CardTitle = ({ className, children }) => <h3 className={`text-2xl font-semibold leading-none tracking-tight ${className || ''}`}>{children}</h3>;
+        const CardDescription = ({ className, children }) => <p className={`text-sm text-slate-500 ${className || ''}`}>{children}</p>;
+        const CardContent = ({ className, children }) => <div className={`p-6 pt-0 ${className || ''}`}>{children}</div>;
 
         const Button = ({ className, variant = "default", size = "default", children, ...props }) => {
             const variants = {
                 default: "bg-slate-900 text-slate-50 hover:bg-slate-900/90",
                 outline: "border border-slate-200 bg-white hover:bg-slate-100 hover:text-slate-900",
-                secondary: "bg-slate-100 text-slate-900 hover:bg-slate-100/80",
-                ghost: "hover:bg-slate-100 hover:text-slate-900",
             };
-            const sizes = {
-                default: "h-10 px-4 py-2",
-                sm: "h-9 rounded-md px-3",
-                icon: "h-10 w-10",
-            };
-            return (
-                <button 
-                    className={`inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${variants[variant]} ${sizes[size]} ${className || ''}`}
-                    {...props}
-                >
-                    {children}
-                </button>
-            );
+            return <button className={`inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-slate-950 px-4 py-2 ${variants[variant]} ${className || ''}`} {...props}>{children}</button>;
         };
 
         const Badge = ({ className, variant = "default", children }) => {
             const variants = {
-                default: "border-transparent bg-slate-900 text-slate-50 hover:bg-slate-900/80",
-                secondary: "border-transparent bg-slate-100 text-slate-900 hover:bg-slate-100/80",
-                outline: "text-slate-950",
+                default: "bg-slate-900 text-slate-50",
+                secondary: "bg-slate-100 text-slate-900",
+                outline: "border border-slate-200 text-slate-950",
             };
-            return (
-                <div className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-slate-950 focus:ring-offset-2 ${variants[variant]} ${className || ''}`}>
-                    {children}
-                </div>
-            );
+            return <div className={`inline-flex items-center rounded-full border border-transparent px-2.5 py-0.5 text-xs font-semibold ${variants[variant]} ${className || ''}`}>{children}</div>;
         };
 
-        const Input = ({ className, ...props }) => (
-            <input
-                className={`flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className || ''}`}
-                {...props}
-            />
+        const Tabs = ({ value, onValueChange, children }) => (
+            <div className="w-full" onClick={(e) => {
+                const btn = e.target.closest('button');
+                if (btn && btn.dataset.value) onValueChange(btn.dataset.value);
+            }}>{children}</div>
+        );
+        const TabsList = ({ className, children }) => <div className={`inline-flex h-10 items-center justify-center rounded-md bg-slate-100 p-1 text-slate-500 ${className || ''}`}>{children}</div>;
+        const TabsTrigger = ({ value, className, children }) => (
+            <button data-value={value} className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium transition-all hover:bg-white/50 focus:outline-none ${className || ''}`}>{children}</button>
         );
 
-        const Progress = ({ value, className }) => (
-            <div className={`relative h-4 w-full overflow-hidden rounded-full bg-slate-100 ${className || ''}`}>
-                <div
-                    className="h-full w-full flex-1 bg-slate-900 transition-all"
-                    style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
-                />
-            </div>
-        );
+        // --- 3. DATA ---
 
-        const Tabs = ({ value, onValueChange, children }) => {
-            return (
-                <div className="w-full" onClick={(e) => {
-                    const trigger = e.target.closest('[data-tab-value]');
-                    if (trigger && onValueChange) {
-                        onValueChange(trigger.dataset.tabValue);
-                    }
-                }}>
-                    {children}
-                </div>
-            );
-        };
-        const TabsList = ({ className, children }) => (
-            <div className={`inline-flex h-10 items-center justify-center rounded-md bg-slate-100 p-1 text-slate-500 ${className || ''}`}>
-                {children}
-            </div>
-        );
-        const TabsTrigger = ({ value, className, children }) => {
-            return (
-                <button
-                    data-tab-value={value}
-                    className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-white/50 ${className || ''}`}
-                >
-                    {children}
-                </button>
-            );
-        };
-
-        // --- APP DATA ---
-        
         const PROFILES = [
             { id: "citizen", label: "Emirati Citizen", name: "Aisha & Omar", subtitle: "Family Space profile" },
             { id: "resident", label: "Resident Family", name: "Mariam & Daniel", subtitle: "Family Space profile" },
         ];
 
         const LIFE_ARC = [
-            { id: "premarital", label: "Premarital", icon: ClipboardCheck },
-            { id: "marriage", label: "Marriage", icon: Users },
-            { id: "preconception", label: "Preconception", icon: HeartPulse },
-            { id: "maternity", label: "Maternity", icon: Stethoscope },
-            { id: "birth", label: "Birth & Certificate", icon: Baby },
-            { id: "mabrouk", label: "Mabrouk Ma Yak", icon: ShieldCheck },
-            { id: "newborn", label: "Newborn Care", icon: Activity },
-            { id: "vaccination", label: "Vaccination", icon: HeartPulse },
-            { id: "wellchild", label: "Well-Child", icon: ClipboardList },
-            { id: "school", label: "School", icon: School },
-            { id: "adolescent", label: "Adolescent", icon: BookOpen },
-            { id: "adult", label: "Adult", icon: Briefcase },
-            { id: "elderly", label: "Elderly", icon: HandHeart },
-            { id: "sanadkom", label: "Sanadkom", icon: FileText },
+            { id: "premarital", label: "Premarital", icon: Icons.ClipboardCheck },
+            { id: "marriage", label: "Marriage", icon: Icons.Users },
+            { id: "preconception", label: "Preconception", icon: Icons.HeartPulse },
+            { id: "maternity", label: "Maternity", icon: Icons.Stethoscope },
+            { id: "birth", label: "Birth", icon: Icons.Baby },
+            { id: "mabrouk", label: "Mabrouk Ma Yak", icon: Icons.ShieldCheck },
+            { id: "newborn", label: "Newborn", icon: Icons.Activity },
+            { id: "vaccination", label: "Vaccination", icon: Icons.HeartPulse },
+            { id: "wellchild", label: "Well-Child", icon: Icons.ClipboardList },
+            { id: "school", label: "School", icon: Icons.School },
+            { id: "adolescent", label: "Adolescent", icon: Icons.BookOpen },
+            { id: "adult", label: "Adult", icon: Icons.Briefcase },
+            { id: "elderly", label: "Elderly", icon: Icons.HandHeart },
+            { id: "sanadkom", label: "Sanadkom", icon: Icons.FileText },
         ];
-
-        const STATUS = {
-            done: { label: "Completed", tone: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-            active: { label: "In progress", tone: "bg-blue-50 text-blue-700 border-blue-200" },
-            next: { label: "Next", tone: "bg-amber-50 text-amber-700 border-amber-200" },
-            future: { label: "Later", tone: "bg-slate-50 text-slate-700 border-slate-200" },
-            optional: { label: "Optional", tone: "bg-purple-50 text-purple-700 border-purple-200" },
-        };
 
         const makeJourneys = (profileId) => {
             const isCitizen = profileId === "citizen";
-            
-            const premarital = {
-                id: "premarital", title: "Premarital Screening", subtitle: "Health readiness",
-                ownerEntities: "Department of Health", documents: ["Screening certificate"],
-                touchpoints: [
-                    { label: "Book appointment", status: "done" },
-                    { label: "Complete labs", status: "done" },
-                    { label: "Receive certificate", status: "next" }
-                ],
-                integrationsText: "Results shared with ADJD."
-            };
-
-            const marriage = {
-                id: "marriage", title: "Marriage", subtitle: "Contract & verification",
-                ownerEntities: "ADJD", documents: ["Marriage contract"],
-                touchpoints: [
-                    { label: "Check eligibility", status: "active" },
-                    { label: "Book ceremony", status: "future" }
-                ],
-                integrationsText: "Unlocks family book updates."
-            };
-
-            // Helper for other journeys to save space
-            const simpleJ = (id, title, sub, status="future") => ({
-                id, title, subtitle: sub, ownerEntities: "Department of Health / TAMM", documents: [], 
-                touchpoints: [{label: "View details", status}], integrationsText: "Connected service."
+            const j = (id, title, sub, status="future", extra="") => ({
+                id, title, subtitle: sub, ownerEntities: "Department of Health / TAMM", 
+                touchpoints: [{label: "View details", status}], integrationsText: extra || "Connected service."
             });
 
             return [
-                premarital,
-                marriage,
-                simpleJ("preconception", "Preconception", "Optional planning"),
-                simpleJ("maternity", "Maternity", "Antenatal care"),
-                simpleJ("birth", "Birth & Certificate", "Notification & issuance"),
-                simpleJ("mabrouk", "Mabrouk Ma Yak", "Newborn bundle"),
-                simpleJ("newborn", "Newborn Care", "Screenings"),
-                simpleJ("vaccination", "Vaccination", "Immunization schedule"),
-                simpleJ("wellchild", "Well-Child", "Growth tracking"),
-                simpleJ("school", "School Readiness", "Enrollment profile"),
-                simpleJ("adolescent", "Adolescent Health", "Youth services"),
-                simpleJ("adult", "Adult Prevention", "Regular checkups"),
-                simpleJ("elderly", "Elderly Care", "Support & home care"),
-                simpleJ("sanadkom", "Sanadkom", "Bereavement support"),
+                {
+                    id: "premarital", title: "Premarital Screening", subtitle: "Health readiness",
+                    ownerEntities: "DOH & Partners",
+                    touchpoints: [{ label: "Book appointment", status: "done" }, { label: "Results ready", status: "next" }],
+                    integrationsText: "Results auto-shared with ADJD."
+                },
+                {
+                    id: "marriage", title: "Marriage Contract", subtitle: "ADJD Services",
+                    ownerEntities: "ADJD",
+                    touchpoints: [{ label: "Application", status: "active" }, { label: "Ceremony", status: "future" }],
+                    integrationsText: "Updates family book automatically."
+                },
+                j("preconception", "Preconception", "Optional planning"),
+                j("maternity", "Maternity", "Pregnancy care"),
+                j("birth", "Birth Certificate", "Issuance"),
+                j("mabrouk", "Mabrouk Ma Yak", isCitizen ? "Bundle Services" : "Not applicable"),
+                j("newborn", "Newborn Screening", "Health checks"),
+                j("vaccination", "Vaccination", "Immunization"),
+                j("wellchild", "Well-Child", "Growth tracking"),
+                j("school", "School Readiness", "Enrollment"),
+                j("adolescent", "Adolescent Health", "Youth care"),
+                j("adult", "Adult Prevention", "Checkups"),
+                j("elderly", "Elderly Care", "Support"),
+                j("sanadkom", "Sanadkom", "Bereavement"),
             ];
         };
 
-        function TammLifeDashboardPrototype() {
+        // --- 4. MAIN COMPONENT ---
+
+        function App() {
             const [profileId, setProfileId] = useState("citizen");
             const [activeJourneyId, setActiveJourneyId] = useState("premarital");
             
-            const profile = PROFILES.find((p) => p.id === profileId) || PROFILES[0];
+            const profile = PROFILES.find(p => p.id === profileId) || PROFILES[0];
             const journeys = useMemo(() => makeJourneys(profileId), [profileId]);
-            const activeJourney = journeys.find((j) => j.id === activeJourneyId) || journeys[0];
+            const activeJourney = journeys.find(j => j.id === activeJourneyId) || journeys[0];
 
             return (
-                <div className="min-h-screen bg-slate-50 p-4 md:p-6 font-sans text-slate-900">
-                    <div className="mx-auto max-w-6xl space-y-6">
-                        
-                        {/* Header */}
-                        <div className="flex flex-col gap-3 rounded-2xl border bg-white p-5 shadow-sm md:flex-row md:items-center md:justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-2xl border bg-slate-50">
-                                    <Home className="h-6 w-6" />
-                                </div>
-                                <div>
-                                    <div className="text-xs font-semibold text-slate-500">TAMM Family Space</div>
-                                    <div className="text-xl font-semibold text-slate-900">Life Events Dashboard</div>
-                                </div>
+                <div className="min-h-screen p-4 md:p-6 mx-auto max-w-6xl space-y-6">
+                    {/* Header */}
+                    <div className="flex flex-col gap-3 rounded-2xl border bg-white p-5 shadow-sm md:flex-row md:items-center md:justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border bg-slate-50">
+                                <Icons.Home className="h-6 w-6" />
                             </div>
-                            <div className="flex items-center gap-2">
-                                <Tabs value={profileId} onValueChange={setProfileId}>
-                                    <TabsList className="rounded-full">
-                                        {PROFILES.map(p => (
-                                            <TabsTrigger key={p.id} value={p.id} className={profileId === p.id ? "bg-white shadow-sm" : ""}>{p.label}</TabsTrigger>
-                                        ))}
-                                    </TabsList>
-                                </Tabs>
-                            </div>
-                        </div>
-
-                        {/* Life Arc */}
-                        <Card className="rounded-2xl shadow-sm">
-                            <CardHeader className="pb-3">
-                                <CardTitle className="text-lg">Your Journey</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="flex flex-wrap gap-2">
-                                    {LIFE_ARC.map((a) => {
-                                        const Icon = a.icon;
-                                        const isActive = a.id === activeJourneyId;
-                                        return (
-                                            <button
-                                                key={a.id}
-                                                onClick={() => setActiveJourneyId(a.id)}
-                                                className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition ${isActive ? "bg-slate-900 text-white border-slate-900" : "bg-white hover:bg-slate-50"}`}
-                                            >
-                                                <Icon className="h-3.5 w-3.5" />
-                                                <span>{a.label}</span>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        {/* Active Journey Detail */}
-                        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                            <div className="md:col-span-2">
-                                <Card className="rounded-2xl shadow-sm">
-                                    <CardHeader>
-                                        <div className="flex items-start justify-between">
-                                            <div>
-                                                <CardTitle>{activeJourney.title}</CardTitle>
-                                                <CardDescription className="mt-1">{activeJourney.subtitle}</CardDescription>
-                                            </div>
-                                            <Badge>Selected</Badge>
-                                        </div>
-                                    </CardHeader>
-                                    <CardContent className="space-y-4">
-                                        <div className="flex flex-wrap gap-2">
-                                            {activeJourney.touchpoints.map((t, i) => (
-                                                <span key={i} className="inline-flex items-center gap-2 rounded-full border bg-slate-50 px-3 py-1 text-xs">
-                                                    <span className={`w-2 h-2 rounded-full ${t.status === 'done' ? 'bg-emerald-500' : 'bg-slate-300'}`}></span>
-                                                    {t.label}
-                                                </span>
-                                            ))}
-                                        </div>
-                                        <div className="rounded-lg border bg-slate-50 p-4 text-sm">
-                                            <strong>Integration Note:</strong> {activeJourney.integrationsText}
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            </div>
-                            
                             <div>
-                                <Card className="rounded-2xl shadow-sm h-full">
-                                    <CardHeader>
-                                        <div className="flex items-center gap-2">
-                                            <Sparkles className="h-4 w-4 text-amber-500" />
-                                            <CardTitle className="text-base">AI Suggestions</CardTitle>
-                                        </div>
-                                    </CardHeader>
-                                    <CardContent className="space-y-3">
-                                        <div className="rounded-lg border bg-white p-3 text-sm">
-                                            <div className="font-semibold">Checklist Ready</div>
-                                            <div className="text-slate-500 text-xs mt-1">Review your requirements for {activeJourney.title}.</div>
-                                            <Button size="sm" variant="outline" className="mt-2 w-full">View Checklist</Button>
-                                        </div>
-                                    </CardContent>
-                                </Card>
+                                <div className="text-xs font-semibold text-slate-500">TAMM Family Space</div>
+                                <div className="text-xl font-semibold text-slate-900">Life Events Dashboard</div>
                             </div>
                         </div>
+                        <Tabs value={profileId} onValueChange={setProfileId}>
+                            <TabsList className="rounded-full">
+                                {PROFILES.map(p => (
+                                    <TabsTrigger key={p.id} value={p.id} className={profileId === p.id ? "bg-white shadow-sm" : ""}>
+                                        {p.label}
+                                    </TabsTrigger>
+                                ))}
+                            </TabsList>
+                        </Tabs>
+                    </div>
 
+                    {/* Timeline */}
+                    <Card className="rounded-2xl shadow-sm">
+                        <CardHeader className="pb-3"><CardTitle className="text-lg">Your Life Journey</CardTitle></CardHeader>
+                        <CardContent>
+                            <div className="flex flex-wrap gap-2">
+                                {LIFE_ARC.map((a) => {
+                                    const Icon = a.icon;
+                                    const isActive = a.id === activeJourneyId;
+                                    return (
+                                        <button key={a.id} onClick={() => setActiveJourneyId(a.id)}
+                                            className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition ${isActive ? "bg-slate-900 text-white border-slate-900" : "bg-white hover:bg-slate-50"}`}>
+                                            <Icon className="h-3.5 w-3.5" />
+                                            <span>{a.label}</span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Details */}
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                        <div className="md:col-span-2">
+                            <Card className="rounded-2xl shadow-sm h-full">
+                                <CardHeader>
+                                    <CardTitle>{activeJourney.title}</CardTitle>
+                                    <CardDescription>{activeJourney.subtitle}</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="flex flex-wrap gap-2">
+                                        {activeJourney.touchpoints.map((t, i) => (
+                                            <span key={i} className="inline-flex items-center gap-2 rounded-full border bg-slate-50 px-3 py-1 text-xs">
+                                                <span className={`w-2 h-2 rounded-full ${t.status === 'done' ? 'bg-emerald-500' : 'bg-slate-300'}`}></span>
+                                                {t.label}
+                                            </span>
+                                        ))}
+                                    </div>
+                                    <div className="p-3 bg-slate-50 rounded-lg text-sm text-slate-700">
+                                        Note: {activeJourney.integrationsText}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                        <div>
+                             <Card className="rounded-2xl shadow-sm h-full">
+                                <CardHeader><CardTitle className="text-base flex items-center gap-2"><Icons.Sparkles className="h-4 w-4 text-amber-500"/> AI Suggestions</CardTitle></CardHeader>
+                                <CardContent>
+                                    <div className="border rounded-lg p-3">
+                                        <div className="font-semibold text-sm">Action Required</div>
+                                        <div className="text-xs text-slate-500 mt-1">Complete your checklist for {activeJourney.title}.</div>
+                                        <Button size="sm" variant="outline" className="w-full mt-2">View</Button>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
                     </div>
                 </div>
             );
         }
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<TammLifeDashboardPrototype />);
+        root.render(<App />);
     </script>
 </body>
 </html>
