@@ -25,6 +25,14 @@
       ::-webkit-scrollbar-track { background: transparent; }
       ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
       body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+      .hide-scrollbar::-webkit-scrollbar { display: none; }
+      .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      
+      @keyframes slideUp {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .animate-slide-up { animation: slideUp 0.3s ease-out forwards; }
     </style>
   </head>
   <body class="bg-slate-50 text-slate-900">
@@ -61,22 +69,42 @@
         HeartHandshake: getIcon("HeartHandshake"),
         GraduationCap: getIcon("GraduationCap"),
         Calendar: getIcon("Calendar"),
+        MapPin: getIcon("MapPin"),
+        Clock: getIcon("Clock"),
+        X: getIcon("X"),
+        ArrowRight: getIcon("ArrowRight"),
+        Building2: getIcon("Building2"),
+        Bot: getIcon("Bot"),
+        Circle: getIcon("Circle"),
+        HandHeart: getIcon("HandHeart"),
+        Link2: getIcon("Link2"),
+        MessageCircle: getIcon("MessageCircle"),
+        User: getIcon("User"),
+        Accessibility: getIcon("Accessibility"),
+        Plane: getIcon("Plane"),
+        Info: getIcon("Info"),
+        ChevronDown: getIcon("ChevronDown"),
+        List: getIcon("List"),
+        Table2: getIcon("Table2"),
+        ListTodo: getIcon("ListTodo"),
       };
 
       // --- UI COMPONENTS ---
 
-      const Card = ({ className, children }) => (
-        <div className={`rounded-2xl border border-slate-200 bg-white text-slate-950 shadow-sm ${className || ""}`}>{children}</div>
+      const Card = ({ className, children, onClick }) => (
+        <div onClick={onClick} className={`rounded-2xl border border-slate-200 bg-white text-slate-950 shadow-sm ${className || ""} ${onClick ? 'cursor-pointer hover:shadow-md transition-shadow' : ''}`}>{children}</div>
       );
       const CardHeader = ({ className, children }) => <div className={`flex flex-col space-y-1.5 p-6 ${className || ""}`}>{children}</div>;
-      const CardTitle = ({ className, children }) => <h3 className={`text-xl font-bold leading-none tracking-tight ${className || ""}`}>{children}</h3>;
+      const CardTitle = ({ className, children }) => <h3 className={`text-xl font-bold leading-none tracking-tight text-slate-900 ${className || ""}`}>{children}</h3>;
+      const CardDescription = ({ className, children }) => <p className={`text-sm text-slate-500 ${className || ""}`}>{children}</p>;
       const CardContent = ({ className, children }) => <div className={`p-6 pt-0 ${className || ""}`}>{children}</div>;
 
       const Button = ({ className, variant = "default", size = "default", children, ...props }) => {
         const variants = {
-          default: "bg-slate-900 text-white hover:bg-slate-800",
+          default: "bg-teal-700 text-white hover:bg-teal-800 shadow-md shadow-teal-900/10",
           outline: "border border-slate-200 bg-white hover:bg-slate-50 text-slate-900",
           ghost: "hover:bg-slate-100 text-slate-700",
+          secondary: "bg-slate-100 text-slate-900 hover:bg-slate-200",
         };
         const sizes = { default: "h-10 px-4 py-2", sm: "h-8 rounded-lg px-3 text-xs", icon: "h-10 w-10" };
         return (
@@ -89,297 +117,693 @@
           default: "bg-slate-900 text-white",
           secondary: "bg-slate-100 text-slate-900",
           outline: "border border-slate-200 text-slate-600",
+          teal: "bg-teal-50 text-teal-700 border border-teal-200",
+          amber: "bg-amber-50 text-amber-700 border border-amber-200",
+          success: "bg-emerald-50 text-emerald-700 border border-emerald-200",
         };
         return <div className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${variants[variant]} ${className || ""}`}>{children}</div>;
       };
 
-      const Progress = ({ value }) => (
-        <div className="relative h-2 w-full overflow-hidden rounded-full bg-slate-100">
-          <div className="h-full bg-slate-900 transition-all duration-500" style={{ width: `${value}%` }} />
+      const Progress = ({ value, className }) => (
+        <div className={`relative h-3 w-full overflow-hidden rounded-full bg-slate-100 ${className || ''}`}>
+          <div className="h-full bg-teal-600 transition-all duration-500 ease-in-out" style={{ width: `${value}%` }} />
         </div>
       );
 
-      const Switch = ({ checked, onCheckedChange }) => (
-        <button 
-          type="button" role="switch" aria-checked={checked} onClick={() => onCheckedChange(!checked)}
-          className={`w-11 h-6 rounded-full relative transition-colors focus:outline-none focus:ring-2 focus:ring-slate-900 ${checked ? 'bg-slate-900' : 'bg-slate-200'}`}
-        >
-          <span className={`block w-5 h-5 bg-white rounded-full shadow transition-transform ${checked ? 'translate-x-5' : 'translate-x-0.5'}`} style={{marginTop: '2px'}} />
-        </button>
-      );
+      // --- DATA FACTORY ---
 
-      const Separator = ({ className }) => <div className={`h-[1px] w-full bg-slate-200 ${className || ''}`} />;
-      
-      const Textarea = ({ className, ...props }) => (
-        <textarea className={`flex min-h-[80px] w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 ${className || ''}`} {...props} />
-      );
-
-      const Tabs = ({ value, onValueChange, children }) => <div className="w-full" onClick={(e) => { const b = e.target.closest('button'); if(b) onValueChange(b.dataset.value); }}>{children}</div>;
-      const TabsList = ({ className, children }) => <div className={`inline-flex h-9 items-center justify-center rounded-lg bg-slate-100 p-1 text-slate-500 ${className || ''}`}>{children}</div>;
-      const TabsTrigger = ({ value, className, children }) => <button data-value={value} className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium transition-all focus:outline-none hover:bg-white/50 ${className}`}>{children}</button>;
-
-      // --- DATA ---
-
-      const PERSONAS = {
+      const getPersonas = () => ({
         citizen: {
-          label: "Citizen family", familyName: "Al Nuaimi Family", parents: "Omar & Aisha", expectedBaby: "Baby Noor", location: "Abu Dhabi",
-          benefitsLabel: "Eligible benefits", showMabrouk: true, showSchoolSeat: true, showPaternityLeave: true, showMOFA: false,
+          label: "Citizen family",
+          familyName: "Al Nuaimi Family",
+          parents: "Omar & Aisha",
+          location: "Abu Dhabi",
+          benefitsLabel: "Family Book Path",
+          features: ["Mabrouk Ma Yak", "Genome Testing", "School Seat Reserve"]
         },
         resident: {
-          label: "Resident family", familyName: "Khan Family", parents: "Hassan & Mariam", expectedBaby: "Baby Lina", location: "Abu Dhabi",
-          benefitsLabel: "Available support", showMabrouk: false, showSchoolSeat: false, showPaternityLeave: false, showMOFA: true,
-        },
-      };
+          label: "Resident family",
+          familyName: "Khan Family",
+          parents: "Hassan & Mariam",
+          location: "Abu Dhabi",
+          benefitsLabel: "Resident Path",
+          features: ["MOFA Attestation", "Embassy Passport", "Civil Marriage"]
+        }
+      });
 
-      const LIFE_STAGES = [
-        { key: "premarital", title: "Premarital screening", icon: Icons.HeartHandshake },
-        { key: "marriage", title: "Marriage", icon: Icons.Users },
-        { key: "preconception", title: "Planning a baby", icon: Icons.HeartPulse },
-        { key: "maternity", title: "Maternity care", icon: Icons.Stethoscope },
-        { key: "birth", title: "Birth paperwork", icon: Icons.FileText },
-        { key: "mabrouk", title: "Mabrouk Ma Yak", icon: Icons.Baby, citizenOnly: true },
-        { key: "screening", title: "Newborn screening", icon: Icons.ShieldCheck },
-        { key: "vaccination", title: "Vaccinations", icon: Icons.HeartPulse },
-        { key: "education", title: "Early education", icon: Icons.GraduationCap, citizenOnly: true },
-        { key: "housing", title: "Family housing", icon: Icons.Home, addon: true },
-        { key: "work", title: "Work & leave", icon: Icons.Briefcase, addon: true },
-        { key: "adult", title: "Adult prevention", icon: Icons.HeartPulse },
-        { key: "elderly", title: "Elderly care", icon: Icons.Users },
-        { key: "sanadkom", title: "End-of-life", icon: Icons.FileText },
-      ];
+      const getJourneyData = (persona) => {
+        const isCitizen = persona === 'citizen';
 
-      const JOURNEYS = [
-        {
-          key: "premarital", title: "Premarital screening", subtitle: "Book, complete tests, and unlock the next steps.", icon: Icons.HeartHandshake,
-          touchpoints: ["Check required tests", "Add partner details", "Choose a clinic", "Book an appointment", "Pay and confirm", "Attend the screening", "View completion status", "Receive education options", "Continue to marriage application"],
-          enhancements: ["One clear checklist for both partners", "Fast-track lanes for urgent wedding dates", "Simple explanations of what the results mean"],
-          ai: ["Suggest best appointment slots based on both calendars", "Flag missing documents before the visit", "Answer sensitive FAQs in private mode"],
-        },
-        {
-          key: "marriage", title: "Marriage", subtitle: "A guided path to complete the marriage contract.", icon: Icons.Users,
-          touchpoints: ["Review eligibility", "Start the application", "Upload required documents", "Verify identities", "Select dates and preferences", "Track application status", "Receive contract confirmation", "Access post-marriage support"],
-          enhancements: ["A single status page for both partners", "Document auto-check to reduce rejections", "Clear on-screen difference between citizen and resident rules"],
-          ai: ["Detect document issues before upload", "Predict likely approval timeline", "Provide a plain-language summary of what happens next"],
-        },
-        // ... (Other journeys mapped to generic fallback for brevity in this fix, but structure supports all)
-      ];
+        // Dynamic Birth Journey
+        const birthJourney = isCitizen ? {
+          title: "Mabrouk Ma Yak",
+          subtitle: "Newborn Bundle",
+          icon: "Baby",
+          description: "One request to issue all your newborn's official documents: Birth Certificate, ID, Passport, and Family Book.",
+          status: "Action Required",
+          // Simple View Data
+          steps: [
+            { title: "Notification", desc: "Hospital submits birth details.", status: "completed" },
+            { title: "Photo & Name", desc: "Baby photo captured at hospital. You choose the name.", status: "current" },
+            { title: "Bundle Processing", desc: "We issue Birth Certificate, EID, and Passport together.", status: "upcoming" },
+            { title: "Delivery", desc: "Digital docs in Wallet. Physical cards delivered.", status: "upcoming" }
+          ],
+          // Detailed Master View Data
+          details: [
+            { stage: "Trigger", touchpoint: "Birth Certificate Issued", channel: "TAMM Platform", entity: "DoH -> ICP", enhancement: "Auto-trigger bundle" },
+            { stage: "Identity", touchpoint: "Issue ID & Passport", channel: "Backend", entity: "ICP", enhancement: "Zero visits required" },
+            { stage: "Registry", touchpoint: "Update Family Book", channel: "Backend", entity: "ICP", enhancement: "Real-time sync" },
+            { stage: "Delivery", touchpoint: "Wallet Push", channel: "TAMM Wallet", entity: "ICP/TAMM", enhancement: "Instant digital access" }
+          ]
+        } : {
+          title: "Birth & Residency",
+          subtitle: "Certificate & Visa",
+          icon: "FileText",
+          description: "Issue the Birth Certificate, attest it, and proceed with Residency issuance.",
+          status: "Action Required",
+          steps: [
+            { title: "Notification", desc: "Hospital submits birth details.", status: "completed" },
+            { title: "Birth Certificate", desc: "Review details and issue certificate.", status: "current" },
+            { title: "Attestation", desc: "Digital MOFA attestation (if needed).", status: "upcoming" },
+            { title: "Residency", desc: "Apply for Passport (Embassy) then Residency (ICP).", status: "upcoming" }
+          ],
+          details: [
+            { stage: "Civil Docs", touchpoint: "Birth Certificate", channel: "TAMM Family Space", entity: "DoH", enhancement: "Digital Issuance" },
+            { stage: "Attest", touchpoint: "MOFA Attestation", channel: "TAMM Family Space", entity: "MOFA", enhancement: "One-click digital attest" },
+            { stage: "Passport", touchpoint: "Embassy Application", channel: "Embassy/Consulate", entity: "Foreign Mission", enhancement: "Guidance checklist" },
+            { stage: "Visa", touchpoint: "Residency & ID", channel: "TAMM/ICP App", entity: "ICP", enhancement: "Linked to sponsor" }
+          ]
+        };
 
-      // Generic fallback for journeys not fully defined in the array above
-      const getJourney = (key) => JOURNEYS.find(j => j.key === key) || {
-        key: key, title: "Service Details", subtitle: "Managed through Medical Hub", icon: Icons.FileText,
-        touchpoints: ["Check eligibility", "Submit request", "Track status", "View outcome"],
-        enhancements: ["Integrated timeline", "Digital approvals"],
-        ai: ["Eligibility pre-check", "Document assistant"]
+        return {
+          premarital: {
+            title: "Premarital Screening",
+            subtitle: "Health readiness & Genetics",
+            icon: "HeartHandshake",
+            description: "Complete your screening to ensure a healthy future family. Results are valid for 3 months.",
+            status: "Completed",
+            steps: [
+              { title: "Check Requirements", desc: "View the checklist for citizens vs residents.", status: "completed" },
+              { title: "Book Appointment", desc: "Choose a SEHA facility near you.", status: "completed" },
+              { title: "Attend Screening", desc: `Complete lab tests${isCitizen ? " (Genome included)." : "."}`, status: "completed" },
+              { title: "Receive Results", desc: "Your certificate will be issued digitally.", status: "completed" },
+              { title: "Marriage Readiness", desc: "Your status will automatically update for ADJD.", status: "completed" }
+            ],
+            details: [
+              { stage: "Discovery", touchpoint: "Check requirements", channel: "TAMM Family Space", entity: "DCD + ADJD", enhancement: "Citizen vs Resident rules" },
+              { stage: "Booking", touchpoint: "Book appointment", channel: "TAMM Sahatna", entity: "DoH + SEHA", enhancement: "Smart slot suggestion" },
+              { stage: "Visit", touchpoint: "Attend screening", channel: "Clinic", entity: "SEHA / ADPHC", enhancement: "Fast-track queue" },
+              { stage: "Labs", touchpoint: "Genome & Standard Tests", channel: "Lab", entity: "Labs + Malaffi", enhancement: "Unified sample collection" },
+              { stage: "Results", touchpoint: "Receive status", channel: "TAMM Notification", entity: "DoH", enhancement: "Simple 'Valid/Invalid' status" },
+              { stage: "ADJD Flag", touchpoint: "Sync with Justice", channel: "Backend", entity: "DoH -> ADJD", enhancement: "No medical data shared" }
+            ]
+          },
+          marriage: {
+            title: "Marriage Contract",
+            subtitle: "Legal & Religious",
+            icon: "Users",
+            description: "Apply for your marriage contract digitally. We've pre-filled your details.",
+            status: "In Progress",
+            steps: [
+              { title: "Application", desc: "Start your marriage file with ADJD.", status: "completed" },
+              { title: "Eligibility Check", desc: "We verify your premarital screening status.", status: "completed" },
+              { title: "Book Ceremony", desc: "Choose a court or authorized officiant.", status: "current" },
+              { title: "Digital Contract", desc: "Receive your official marriage contract instantly.", status: "upcoming" },
+              isCitizen ? { title: "Family Update", desc: "Your Family Book updates automatically.", status: "upcoming" } : null
+            ].filter(Boolean),
+            details: [
+              { stage: "Application", touchpoint: "Start Marriage File", channel: "TAMM Family Space", entity: "ADJD", enhancement: "Pre-filled from ICP" },
+              { stage: "Review", touchpoint: "Select Track (Sharia/Civil)", channel: "TAMM Family Space", entity: "ADJD", enhancement: "Policy-based routing" },
+              { stage: "Ceremony", touchpoint: "Book Officiant/Court", channel: "TAMM + SMS", entity: "ADJD", enhancement: "Live availability" },
+              { stage: "Contract", touchpoint: "Issue Digital Contract", channel: "TAMM Wallet", entity: "ADJD", enhancement: "Instant digital copy" },
+              { stage: "Civil Updates", touchpoint: "Update Family Book", channel: "Backend", entity: "ADJD -> ICP", enhancement: "Auto-trigger for citizens" }
+            ]
+          },
+          preconception: {
+            title: "Planning a Baby",
+            subtitle: "Pre-conception Support",
+            icon: "HeartPulse",
+            description: "Optional health checks and support for starting a family.",
+            status: "Future",
+            steps: [
+              { title: "Health Profile", desc: "Complete your baseline health check.", status: "upcoming" },
+              { title: "Education", desc: "Access preparation guides.", status: "upcoming" },
+              { title: "Clinical Consult", desc: "Book a pre-conception visit if needed.", status: "upcoming" },
+              { title: "IVF Support", desc: "Eligibility and referral if applicable.", status: "upcoming" },
+              { title: "Maternity Handoff", desc: "Seamless transition to pregnancy care.", status: "upcoming" }
+            ],
+            details: [
+              { stage: "Readiness", touchpoint: "Health Risk Assessment", channel: "TAMM Sahatna", entity: "DoH", enhancement: "Risk-based recommendations" },
+              { stage: "Consult", touchpoint: "Pre-conception Visit", channel: "Clinic", entity: "SEHA / Private", enhancement: "Integrated care plan" },
+              { stage: "IVF Branch", touchpoint: "Fertility Referral", channel: "TAMM Sahatna", entity: "DoH -> IVF Centers", enhancement: "Digital referral tracking" },
+              { stage: "Transition", touchpoint: "Auto-draft Maternity", channel: "Backend", entity: "DoH -> Malaffi", enhancement: "Seamless record continuity" }
+            ]
+          },
+          maternity: {
+            title: "Maternity Journey",
+            subtitle: "Antenatal to Delivery",
+            icon: "Stethoscope",
+            description: "Track your pregnancy milestones, appointments, and care plan.",
+            status: "Completed",
+            steps: [
+              { title: "Confirm Pregnancy", desc: "Register your maternity file.", status: "completed" },
+              { title: "Care Plan", desc: "View your 9-visit antenatal schedule.", status: "completed" },
+              { title: "Pre-Capture IDs", desc: "Upload parent docs now to save time at birth.", status: "completed" },
+              { title: "Delivery Admission", desc: "Fast-track check-in at the hospital.", status: "completed" },
+              { title: "Birth Notification", desc: "Provider submits data.", status: "completed", systemNote: "Pre-filled from Malaffi" }
+            ],
+            details: [
+              { stage: "Registration", touchpoint: "Confirm Pregnancy", channel: "TAMM Sahatna", entity: "DoH + Malaffi", enhancement: "Auto-draft from lab result" },
+              { stage: "Care Plan", touchpoint: "9-Visit Schedule", channel: "TAMM Sahatna", entity: "DoH", enhancement: "Visual timeline" },
+              { stage: "Admin Prep", touchpoint: "Pre-capture Parent IDs", channel: "TAMM Family Space", entity: "ICP + ADJD", enhancement: "Avoid delivery-day admin" },
+              { stage: "Delivery", touchpoint: "Hospital Admission", channel: "Hospital", entity: "SEHA / Private", enhancement: "Fast check-in via EID" },
+              { stage: "Handoff", touchpoint: "Provider Birth Notification", channel: "Provider Console", entity: "Hospital -> DoH", enhancement: "Pre-filled from Malaffi" }
+            ]
+          },
+          birth: birthJourney,
+          newborn: {
+            title: "Newborn Care",
+            subtitle: "Screening & Vaccination",
+            icon: "ShieldCheck",
+            description: "Essential health checks immediately after birth.",
+            status: "Action Required",
+            steps: [
+              { title: "Newborn Screening", desc: "Hearing, Heart, and Metabolic checks.", status: "current" },
+              { title: "Results", desc: "View results (reported to MOHAP).", status: "upcoming" },
+              { title: "Referrals", desc: "ZHO or Medical Specialist trigger if flagged.", status: "upcoming", systemNote: "Auto-referral" },
+              { title: "Insurance", desc: "Auto-enrollment on family policy.", status: "upcoming" }
+            ],
+            details: [
+              { stage: "Screening", touchpoint: "Metabolic/Hearing/CCHD", channel: "Hospital", entity: "DoH + Malaffi", enhancement: "Result to MOHAP" },
+              { stage: "Referral", touchpoint: "ZHO/Specialist Trigger", channel: "TAMM Sahatna", entity: "DoH -> ZHO", enhancement: "Auto-referral on flag" },
+              { stage: "Vaccination", touchpoint: "Schedule & Administer", channel: "Clinic", entity: "DoH", enhancement: "ADEK readiness signal" },
+              { stage: "Education", touchpoint: "School Profile", channel: "TAMM Family Space", entity: "ADEK/MoE", enhancement: "Early seat reservation" }
+            ]
+          },
+          vaccination: { 
+            title: "Vaccinations", 
+            subtitle: "Milestones", 
+            icon: "HeartPulse", 
+            description: "Immunization schedule.", 
+            status: "Future",
+            steps: [{title: "Schedule", status: "upcoming"}, {title: "Book", status: "upcoming"}, {title: "Record", status: "upcoming"}],
+            details: [{stage: "Care", touchpoint: "Vaccine Admin", channel: "Clinic", entity: "DoH", enhancement: "Digital Registry"}]
+          },
+          education: { title: "Education", subtitle: "School Planning", icon: "GraduationCap", description: "Profile & Seats.", steps: [{title: "Profile", status: "upcoming"}, {title: "Seat", status: "upcoming"}], status: "Future", details: [] },
+          adult: { title: "Adult Care", subtitle: "Prevention", icon: "Activity", description: "Wellness checks.", steps: [{title: "Checkup", status: "upcoming"}], status: "Future", details: [] },
+          elderly: { title: "Elderly Care", subtitle: "Support", icon: "Users", description: "Home care & support.", steps: [{title: "Assessment", status: "upcoming"}], status: "Future", details: [] },
+          sanadkom: { 
+            title: "Sanadkom", 
+            subtitle: "End of Life", 
+            icon: "HandHeart", 
+            description: "Bereavement support.", 
+            status: "Future",
+            steps: [{title: "Notification", status: "upcoming"}, {title: "Certificate", status: "upcoming"}, {title: "Benefits", status: "upcoming"}],
+            details: [
+              { stage: "Notification", touchpoint: "Provider Reports Death", channel: "Provider Console", entity: "Hospital", enhancement: "Clinical fact capture" },
+              { stage: "Certificate", touchpoint: "Issue Death Certificate", channel: "TAMM Family Space", entity: "DoH", enhancement: "Digital issuance" },
+              { stage: "Benefits", touchpoint: "Launch Sanadkom", channel: "TAMM Family Space", entity: "Sanadkom/DCD", enhancement: "Proactive support" },
+              { stage: "Permits", touchpoint: "Burial/Transport", channel: "TAMM Family Space", entity: "Municipalities", enhancement: "Unified permit flow" }
+            ]
+          },
+          // NEWLY ADDED DATA FOR PARALLEL SUPPORT
+          housing: {
+            title: "Housing & Support",
+            subtitle: "ISKAN & Benefits",
+            icon: "Home",
+            description: "Apply for housing grants and social allowances.",
+            status: "In Progress",
+            steps: [
+              { title: "Eligibility Check", desc: "Check if you qualify.", status: "completed" },
+              { title: "Application", desc: "Submit your request.", status: "current" },
+              { title: "Committee Review", desc: "Wait for decision.", status: "upcoming" }
+            ],
+            details: [
+              { stage: "Check", touchpoint: "Eligibility Check", channel: "TAMM", entity: "ISKAN", enhancement: "Auto-check" },
+              { stage: "Apply", touchpoint: "Submit Application", channel: "TAMM", entity: "ISKAN", enhancement: "Zero docs" },
+              { stage: "Review", touchpoint: "Committee Review", channel: "Backend", entity: "ISKAN", enhancement: "Fast track" }
+            ]
+          },
+          work: {
+            title: "Work & Leave",
+            subtitle: "Employment Support",
+            icon: "Briefcase",
+            description: "Manage maternity/paternity leave and return to work.",
+            status: "Future",
+            steps: [
+              { title: "Employer Sync", desc: "Link employment record.", status: "upcoming" },
+              { title: "Leave Request", desc: "Apply for leave.", status: "upcoming" },
+              { title: "Return to Work", desc: "Confirm return date.", status: "upcoming" }
+            ],
+            details: [
+              { stage: "Sync", touchpoint: "Employer Sync", channel: "TAMM", entity: "MOHRE", enhancement: "Auto-detect" },
+              { stage: "Leave", touchpoint: "Leave Request", channel: "TAMM", entity: "Employer/MOHRE", enhancement: "Digital letter" }
+            ]
+          }
+        };
       };
 
       // --- COMPONENTS ---
 
-      function StagePill({ active, disabled, title, Icon, onClick }) {
+      function JourneyTimeline({ data }) {
+        if (!data || !data.steps || !data.steps.length) return <div className="text-sm text-slate-400 italic p-4">Timeline available upon activation.</div>;
+
         return (
-          <button type="button" onClick={disabled ? undefined : onClick}
-            className={`flex items-center gap-2 px-3 py-2 rounded-full border text-sm transition-all focus:outline-none ${disabled ? "opacity-40 bg-slate-100 cursor-not-allowed" : "cursor-pointer hover:bg-slate-100"} ${active ? "bg-slate-900 text-white border-slate-900 shadow-md" : "bg-white"}`}
-          >
-            <Icon className="h-4 w-4" />
-            <span className="whitespace-nowrap">{title}</span>
-          </button>
+          <div className="mt-6 relative pl-4 border-l-2 border-slate-100 space-y-8">
+            {data.steps.map((step, i) => {
+              const isCompleted = step.status === 'completed';
+              const isCurrent = step.status === 'current';
+              
+              return (
+                <div key={i} className="relative pl-6">
+                  <div className={`absolute -left-[21px] top-1 w-4 h-4 rounded-full border-2 
+                    ${isCompleted ? 'bg-teal-600 border-teal-600' : isCurrent ? 'bg-white border-teal-600 ring-4 ring-teal-50' : 'bg-slate-100 border-slate-300'}
+                  `}>
+                    {isCompleted && <Icons.CheckCircle2 className="w-3 h-3 text-white absolute top-[-1px] left-[-1px]" />}
+                  </div>
+                  
+                  <div className={`flex flex-col ${isCurrent ? 'opacity-100' : 'opacity-70'}`}>
+                    <div className="flex items-center justify-between">
+                      <span className={`text-sm font-bold ${isCurrent ? 'text-teal-800' : 'text-slate-900'}`}>{step.title}</span>
+                      {step.systemNote && <Badge variant="secondary" className="text-[10px] h-5 bg-slate-100 text-slate-500 font-normal ml-2">{step.systemNote}</Badge>}
+                    </div>
+                    <span className="text-xs text-slate-500 mt-0.5">{step.desc}</span>
+                    
+                    {isCurrent && (
+                      <div className="mt-3">
+                        <Button size="sm" className="h-8 text-xs rounded-lg">Action Required</Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         );
       }
 
-      function MiniJourneyCard({ journey, personaKey, compact }) {
-        const [expanded, setExpanded] = useState(!compact);
-        useEffect(() => { if (compact) setExpanded(false); }, [compact]);
+      function JourneyMasterTable({ data }) {
+        if (!data || !data.details || !data.details.length) return <div className="text-sm text-slate-400 italic p-4">Detailed plan available for active journeys.</div>;
         
         return (
-          <Card className="rounded-2xl">
-            <CardHeader className="pb-2">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center">
-                    <journey.icon className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg">{journey.title}</CardTitle>
-                    <p className="text-sm text-slate-500 mt-1">{journey.subtitle}</p>
-                  </div>
-                </div>
-                <Badge variant="outline">Active Journey</Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <div className="flex items-center justify-between gap-2 text-sm font-medium">
-                  <div className="flex items-center gap-2"><Icons.Calendar className="h-4 w-4" /><span>Your touchpoints</span></div>
-                  {journey.touchpoints.length > 5 && (
-                    <Button type="button" variant="ghost" size="sm" className="h-7 px-2 text-xs rounded-full" onClick={() => setExpanded((prev) => !prev)}>
-                      {expanded ? "Hide details" : "Show details"}
-                    </Button>
-                  )}
-                </div>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {(expanded ? journey.touchpoints : journey.touchpoints.slice(0, 5)).map((t, i) => (
-                    <Badge key={i} variant="outline" className="rounded-full">{t}</Badge>
+          <div className="mt-4 overflow-x-auto pb-4">
+            <table className="w-full text-sm text-left border-collapse min-w-[600px]">
+              <thead>
+                <tr className="border-b border-slate-100">
+                  <th className="py-2 px-4 font-semibold text-slate-500 w-[120px]">Stage</th>
+                  {data.details.map((s, i) => (
+                    <th key={i} className="py-2 px-4 font-medium text-slate-900 bg-slate-50/50 border-r border-slate-100 min-w-[160px]">
+                      {s.stage}
+                    </th>
                   ))}
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <Button variant="default" className="rounded-xl">View your steps</Button>
-                <Button variant="outline" className="rounded-xl">See required documents</Button>
-              </div>
-            </CardContent>
-          </Card>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-b border-slate-50">
+                  <td className="py-3 px-4 font-medium text-slate-500">Touchpoint</td>
+                  {data.details.map((s, i) => (
+                    <td key={i} className="py-3 px-4 border-r border-slate-50 align-top">
+                      <div className="font-semibold text-teal-800">{s.touchpoint}</div>
+                    </td>
+                  ))}
+                </tr>
+                <tr className="border-b border-slate-50 bg-slate-50/30">
+                  <td className="py-3 px-4 font-medium text-slate-500">Channel</td>
+                  {data.details.map((s, i) => (
+                    <td key={i} className="py-3 px-4 border-r border-slate-50 align-top text-slate-600">
+                      {s.channel}
+                    </td>
+                  ))}
+                </tr>
+                <tr className="border-b border-slate-50">
+                  <td className="py-3 px-4 font-medium text-slate-500">Entity</td>
+                  {data.details.map((s, i) => (
+                    <td key={i} className="py-3 px-4 border-r border-slate-50 align-top text-slate-600">
+                      <div className="flex items-center gap-1.5">
+                        <Icons.Building2 className="h-3 w-3 text-slate-400" />
+                        {s.entity}
+                      </div>
+                    </td>
+                  ))}
+                </tr>
+              </tbody>
+            </table>
+          </div>
         );
       }
 
-      function AIAssistantPanel({ personaKey }) {
-        const persona = PERSONAS[personaKey];
-        const [message, setMessage] = useState("");
-        const suggestions = ["Show my next 3 recommended steps", "Check what documents are already on file", "Help me book my next appointment"];
+      function JourneyProgressCard({ journeyKey, data }) {
+        // Safe check for data
+        if (!data || !data.steps) return null;
+
+        const completedSteps = data.steps.filter(s => s.status === 'completed').length;
+        const totalSteps = data.steps.length;
+        const progressPercent = totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0;
+        const Icon = Icons[data.icon] || Icons.Circle;
 
         return (
-          <Card className="rounded-2xl border-blue-100">
-            <CardHeader className="pb-2">
-              <div className="flex items-center gap-2">
-                <div className="h-9 w-9 rounded-xl bg-blue-50 flex items-center justify-center"><Icons.Sparkles className="h-5 w-5 text-blue-600" /></div>
+          <Card className="bg-white border-slate-200 overflow-hidden">
+            <div className="p-6">
+              <div className="flex items-start gap-4 mb-6">
+                <div className="h-14 w-14 rounded-2xl bg-teal-50 text-teal-700 flex items-center justify-center shrink-0">
+                  <Icon className="h-7 w-7" />
+                </div>
                 <div>
-                  <CardTitle className="text-lg">Family Assistant</CardTitle>
-                  <p className="text-sm text-slate-500">Personalized guidance.</p>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h2 className="text-xl font-bold text-slate-900">{data.title}</h2>
+                    <Badge variant={data.status === 'Completed' ? 'success' : 'amber'}>{data.status}</Badge>
+                  </div>
+                  <p className="text-slate-500 text-sm leading-relaxed">{data.description}</p>
                 </div>
               </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="rounded-xl bg-slate-50 p-3">
-                <div className="text-sm"><span className="font-medium">Welcome back,</span> {persona.parents}.</div>
-                <div className="text-sm text-slate-500 mt-1">Based on your profile, we've highlighted relevant steps.</div>
-              </div>
-              <div>
-                <div className="text-sm font-medium">Suggested asks</div>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {suggestions.map((s, i) => (
-                    <Button key={i} variant="outline" className="rounded-full h-8 px-3 text-xs" onClick={() => setMessage(s)}>{s}</Button>
-                  ))}
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs font-medium text-slate-700">
+                  <span>Journey Progress</span>
+                  <span>{Math.round(progressPercent)}% ({completedSteps}/{totalSteps} steps)</span>
                 </div>
+                <Progress value={progressPercent} />
               </div>
-              <Textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Ask about next steps..." className="min-h-[90px] rounded-xl" />
-              <Button className="rounded-xl w-full">Get Guidance</Button>
-            </CardContent>
+            </div>
           </Card>
         );
       }
 
-      // --- MAIN APP ---
+      function InteractiveAIAssistant({ persona }) {
+        const [messages, setMessages] = useState([
+          { role: 'ai', text: `Welcome back. I can help you prepare for your upcoming Life Events.` }
+        ]);
+        const [input, setInput] = useState("");
+        const [isTyping, setIsTyping] = useState(false);
+        const scrollRef = useRef(null);
+
+        useEffect(() => {
+          if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        }, [messages, isTyping]);
+
+        const handleSend = (text) => {
+          const userText = text || input;
+          if (!userText.trim()) return;
+
+          setMessages(prev => [...prev, { role: 'user', text: userText }]);
+          setInput("");
+          setIsTyping(true);
+
+          setTimeout(() => {
+            let reply = "I can certainly help with that.";
+            const lowerText = userText.toLowerCase();
+
+            if (lowerText.includes('eligibility')) {
+              reply = "I've checked your profile. You are eligible for the Premarital Screening. Would you like to book an appointment?";
+            } else if (lowerText.includes('book')) {
+              reply = "I can show you the nearest SEHA facilities. Please select 'Booking' in the journey card.";
+            } else if (lowerText.includes('mabrouk') || lowerText.includes('birth certificate')) {
+              if (persona === 'citizen') {
+                reply = "As a Citizen, your Birth Certificate is part of the 'Mabrouk Ma Yak' bundle. Once the hospital notification is received, we'll issue the Certificate, EID, and Passport automatically.";
+              } else {
+                reply = "For Residents, you'll first issue the Birth Certificate. Then I can guide you through MOFA Attestation and the Embassy Passport application.";
+              }
+            } else if (lowerText.includes('apply')) {
+                if (lowerText.includes('housing')) {
+                    reply = "I've checked your Family Book status. You are eligible for Housing Assistance. I have auto-submitted your application. Reference: HSG-9921.";
+                } else if (lowerText.includes('leave')) {
+                    reply = "I have connected with your employer. Your Paternity Leave request for 5 days has been drafted. Status: Pending Employer Action.";
+                } else {
+                    reply = "I can help you apply for Housing or Leave. Which one would you like?";
+                }
+            } else if (lowerText.includes('doc')) {
+               reply = "Your verified Family Book is in the wallet below. Future documents like the Birth Certificate will appear there automatically.";
+            }
+            setMessages(prev => [...prev, { role: 'ai', text: reply }]);
+            setIsTyping(false);
+          }, 1200);
+        };
+
+        return (
+          <Card className="flex flex-col h-[420px] shadow-lg border-0 bg-slate-900 text-white overflow-hidden">
+            <div className="p-4 border-b border-slate-700 bg-slate-800/50 flex items-center gap-2">
+              <div className="h-8 w-8 rounded-full bg-teal-500 flex items-center justify-center shadow-lg shadow-teal-500/20">
+                <Icons.Sparkles className="h-4 w-4 text-white" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold">Medical Assistant</h3>
+                <p className="text-xs text-slate-400">Context-Aware Support</p>
+              </div>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-4 space-y-4" ref={scrollRef}>
+              {messages.map((m, i) => (
+                <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} animate-slide-up`}>
+                  <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
+                    m.role === 'user' 
+                      ? 'bg-teal-600 text-white rounded-tr-sm' 
+                      : 'bg-slate-800 text-slate-200 rounded-tl-sm'
+                  }`}>
+                    {m.text}
+                  </div>
+                </div>
+              ))}
+              {isTyping && (
+                <div className="flex justify-start animate-slide-up">
+                  <div className="bg-slate-800 rounded-2xl rounded-tl-sm px-4 py-3">
+                    <div className="flex gap-1">
+                      <span className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce"></span>
+                      <span className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></span>
+                      <span className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="p-3 bg-slate-800/50 space-y-3">
+              <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
+                <button onClick={() => handleSend("Apply for Housing")} className="whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-700 hover:bg-slate-600 text-xs font-medium transition-colors">Apply Housing</button>
+                <button onClick={() => handleSend("Request Leave")} className="whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-700 hover:bg-slate-600 text-xs font-medium transition-colors">Request Leave</button>
+                <button onClick={() => handleSend("Check eligibility")} className="whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-700 hover:bg-slate-600 text-xs font-medium transition-colors">Eligibility</button>
+                <button onClick={() => handleSend("How does Mabrouk Ma Yak work?")} className="whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-700 hover:bg-slate-600 text-xs font-medium transition-colors">Mabrouk Ma Yak</button>
+              </div>
+              <div className="flex gap-2">
+                <input 
+                  className="flex-1 bg-slate-950/50 border border-slate-700 rounded-xl px-4 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-all"
+                  placeholder="Ask anything..."
+                  value={input}
+                  onChange={e => setInput(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleSend()}
+                />
+                <button onClick={() => handleSend()} className="h-10 w-10 rounded-xl bg-teal-600 hover:bg-teal-500 flex items-center justify-center transition-colors">
+                  <Icons.Send className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          </Card>
+        );
+      }
 
       function LifeEventsMedicalHubDashboard() {
         const [personaKey, setPersonaKey] = useState("citizen");
-        const [compactMode, setCompactMode] = useState(false);
-        const [selectedStageKey, setSelectedStageKey] = useState("premarital");
-        const [premaritalSimulatedComplete, setPremaritalSimulatedComplete] = useState(false);
+        const [activeJourneyKey, setActiveJourneyKey] = useState("premarital");
+        const [viewMode, setViewMode] = useState("timeline"); // "timeline" or "table"
 
-        const persona = PERSONAS[personaKey];
-        const stages = useMemo(() => LIFE_STAGES.filter((s) => !s.citizenOnly || (s.citizenOnly && personaKey === "citizen")), [personaKey]);
-        const selectedJourney = getJourney(selectedStageKey);
-        
-        const coreStages = stages.filter(s => !s.addon);
-        const addonStages = stages.filter(s => s.addon);
+        const personas = getPersonas();
+        const activePersona = personas[personaKey];
+        const JOURNEY_DATA = useMemo(() => getJourneyData(personaKey), [personaKey]);
+
+        // Handler defined clearly in scope
+        const handleJourneyClick = (key) => {
+          setActiveJourneyKey(key);
+          // Only switch view mode if we are switching journeys (optional, kept simple)
+          // setViewMode('timeline'); 
+        };
+
+        // Navigation Spine Items
+        const LIFE_SPINE = [
+          { id: "premarital", label: "Premarital" },
+          { id: "marriage", label: "Marriage" },
+          { id: "preconception", label: "Planning" },
+          { id: "maternity", label: "Maternity" },
+          { id: "birth", label: personaKey === 'citizen' ? "Mabrouk Ma Yak" : "Birth & Residency" },
+          { id: "newborn", label: "Newborn Care" },
+          { id: "vaccination", label: "Vaccination" },
+          { id: "education", label: "Education" },
+          { id: "adult", label: "Adult Care" },
+          { id: "elderly", label: "Elderly Care" },
+          { id: "sanadkom", label: "End of Life" }
+        ];
 
         return (
-          <div className="min-h-screen bg-gradient-to-b from-white to-slate-50 p-4 md:p-8">
-            {/* Top Container - Fixed the closing tag issue here */}
-            <div className="max-w-7xl mx-auto">
+          <div className="min-h-screen bg-slate-50 p-4 md:p-8 font-sans text-slate-900 pb-20">
+            <div className="max-w-7xl mx-auto space-y-6">
               
               {/* Header */}
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="h-11 w-11 rounded-2xl bg-slate-100 flex items-center justify-center"><Icons.Users className="h-6 w-6" /></div>
+                  <div className="h-12 w-12 rounded-2xl bg-teal-700 text-white flex items-center justify-center shadow-sm">
+                    <Icons.Activity className="h-6 w-6" />
+                  </div>
                   <div>
-                    <div className="text-sm text-slate-500">TAMM</div>
-                    <div className="text-2xl font-semibold">Life Events Medical Hub</div>
+                    <div className="text-xs font-bold text-slate-500 uppercase tracking-wide">TAMM | Sahatna & Family Space</div>
+                    <h1 className="text-2xl font-bold text-slate-900">Life Events Medical Hub</h1>
                   </div>
                 </div>
-                <div className="flex flex-wrap items-center gap-3">
-                  <div className="flex items-center gap-2 rounded-xl border px-3 py-2 bg-white">
-                    <span className="text-xs text-slate-500">Compact view</span>
-                    <Switch checked={compactMode} onCheckedChange={setCompactMode} />
-                  </div>
-                  <div className="flex items-center gap-2 rounded-xl border px-3 py-2 bg-white">
-                    <span className="text-xs text-slate-500">Persona:</span>
-                    <Tabs value={personaKey} onValueChange={setPersonaKey}>
-                      <TabsList className="h-8">
-                        <TabsTrigger value="citizen">Citizen</TabsTrigger>
-                        <TabsTrigger value="resident">Resident</TabsTrigger>
-                      </TabsList>
-                    </Tabs>
-                  </div>
+                <div className="bg-white rounded-xl border border-slate-200 p-1 flex items-center shadow-sm">
+                  <button 
+                    onClick={() => setPersonaKey("citizen")}
+                    className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${personaKey === 'citizen' ? 'bg-slate-900 text-white shadow' : 'text-slate-500 hover:bg-slate-50'}`}
+                  >
+                    Citizen
+                  </button>
+                  <button 
+                    onClick={() => setPersonaKey("resident")}
+                    className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${personaKey === 'resident' ? 'bg-slate-900 text-white shadow' : 'text-slate-500 hover:bg-slate-50'}`}
+                  >
+                    Resident
+                  </button>
                 </div>
               </div>
 
-              {/* Family Context */}
-              <Card className="rounded-2xl mb-6">
-                <CardContent className="p-5 md:p-6">
-                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                      <div className="h-14 w-14 rounded-2xl bg-slate-100 flex items-center justify-center"><Icons.Baby className="h-7 w-7" /></div>
-                      <div>
-                        <div className="text-xs text-slate-500">Your family</div>
-                        <div className="text-xl font-semibold">{persona.familyName}</div>
-                        <div className="text-sm text-slate-500">{persona.parents} · {persona.location}</div>
+              {/* Family Context Card */}
+              <Card className="bg-white">
+                <CardContent className="p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="h-14 w-14 rounded-full bg-slate-100 flex items-center justify-center border-2 border-white shadow-sm">
+                      <Icons.User className="h-7 w-7 text-slate-400" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold text-slate-900">{activePersona.familyName}</h2>
+                      <div className="text-sm text-slate-500 flex items-center gap-2 mt-1">
+                        <span>{activePersona.parents}</span>
+                        <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                        <span className="flex items-center gap-1"><Icons.MapPin className="h-3 w-3" /> {activePersona.location}</span>
                       </div>
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                      <Badge variant="outline" className="rounded-full">{persona.benefitsLabel}</Badge>
-                      <Badge className="rounded-full">{personaKey === "citizen" ? "Family Book Path" : "Resident Newborn Path"}</Badge>
-                    </div>
                   </div>
-
-                  <Separator className="my-4" />
-
-                  {/* Timeline */}
-                  <div className="text-sm font-medium mb-2">Your life journey overview</div>
-                  <div className="mb-3 flex flex-wrap items-center gap-1">
-                    {coreStages.map((s, idx) => (
-                      <React.Fragment key={s.key}>
-                        <StagePill active={s.key === selectedStageKey} title={s.title} Icon={s.icon} onClick={() => setSelectedStageKey(s.key)} />
-                        {idx !== coreStages.length - 1 && <div className="hidden md:block h-px flex-1 min-w-[24px] bg-slate-200 mx-1" />}
-                      </React.Fragment>
-                    ))}
-                  </div>
-                  {addonStages.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {addonStages.map(s => (
-                        <StagePill key={s.key} active={s.key === selectedStageKey} title={s.title} Icon={s.icon} onClick={() => setSelectedStageKey(s.key)} />
-                      ))}
-                    </div>
-                  )}
                 </CardContent>
               </Card>
 
-              {/* Content Grid */}
-              <div className="grid lg:grid-cols-3 gap-6 mt-6">
-                <div className="lg:col-span-2 space-y-4">
-                  <MiniJourneyCard journey={selectedJourney} personaKey={personaKey} compact={compactMode} />
+              {/* Life Spine Rail */}
+              <div className="overflow-x-auto pb-2 hide-scrollbar">
+                <div className="flex items-center gap-2 min-w-max">
+                  {LIFE_SPINE.map((s, i) => (
+                    <div key={s.id} className="flex items-center">
+                      <button 
+                        onClick={() => {
+                          handleJourneyClick(s.id);
+                          setViewMode('timeline'); // Reset to timeline on change
+                        }}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-all whitespace-nowrap
+                          ${activeJourneyKey === s.id ? 'bg-teal-50 border-teal-200 text-teal-800 ring-2 ring-teal-500 ring-offset-2' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}
+                        `}
+                      >
+                        <span className={`w-2 h-2 rounded-full ${activeJourneyKey === s.id ? 'bg-teal-500' : 'bg-slate-300'}`}></span>
+                        {s.label}
+                      </button>
+                      {i < LIFE_SPINE.length - 1 && <div className="w-8 h-[1px] bg-slate-200"></div>}
+                    </div>
+                  ))}
                 </div>
-                <div className="space-y-4">
-                  <AIAssistantPanel personaKey={personaKey} />
-                  <Card className="rounded-2xl">
-                    <CardHeader className="pb-2"><CardTitle className="text-base">Quick Documents</CardTitle></CardHeader>
-                    <CardContent className="space-y-3">
-                      <div className="rounded-xl border p-3 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Icons.FileText className="h-4 w-4" />
-                          <div className="text-sm font-medium">Checklist</div>
-                        </div>
-                        <Button variant="outline" size="sm">Open</Button>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                
+                {/* Left Col: Active Journey Detail */}
+                <div className="lg:col-span-2 space-y-8">
+                  
+                  {/* Journey Progress Card (New Design) */}
+                  <JourneyProgressCard journeyKey={activeJourneyKey} data={JOURNEY_DATA[activeJourneyKey]} />
+
+                  {/* View Mode Toggle & Content */}
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-bold text-lg text-slate-900 flex items-center gap-2">
+                        {viewMode === 'timeline' ? <Icons.ListTodo className="h-5 w-5 text-teal-600" /> : <Icons.Table2 className="h-5 w-5 text-teal-600" />}
+                        {viewMode === 'timeline' ? "Your Steps" : "Master Plan"}
+                      </h3>
+                      
+                      <div className="bg-slate-100 p-1 rounded-lg flex gap-1">
+                        <button 
+                          onClick={() => setViewMode('timeline')}
+                          className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 ${viewMode === 'timeline' ? 'bg-white shadow text-teal-700' : 'text-slate-500 hover:bg-slate-200'}`}
+                        >
+                          <Icons.ListTodo className="h-3.5 w-3.5" /> Your Steps
+                        </button>
+                        <button 
+                          onClick={() => setViewMode('table')}
+                          className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 ${viewMode === 'table' ? 'bg-white shadow text-teal-700' : 'text-slate-500 hover:bg-slate-200'}`}
+                        >
+                          <Icons.Table2 className="h-3.5 w-3.5" /> Master Plan
+                        </button>
+                      </div>
+                    </div>
+
+                    <Card className="bg-white overflow-hidden min-h-[300px]">
+                      <div className="p-6">
+                        {viewMode === 'timeline' ? (
+                          <JourneyTimeline data={JOURNEY_DATA[activeJourneyKey]} />
+                        ) : (
+                          <JourneyMasterTable data={JOURNEY_DATA[activeJourneyKey]} />
+                        )}
+                      </div>
+                    </Card>
+                  </div>
+
+                  {/* Parallel Support Lane */}
+                  <div className="pt-8 border-t border-slate-200">
+                    <h3 className="text-lg font-bold text-slate-900 mb-4">Parallel Support</h3>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <Card onClick={() => handleJourneyClick('housing')} className="bg-slate-50 border-dashed hover:border-slate-300 transition-colors cursor-pointer">
+                        <CardContent className="p-4 flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center"><Icons.Home className="h-5 w-5 text-slate-400" /></div>
+                          <div>
+                            <div className="font-semibold text-sm">Housing & Support</div>
+                            <div className="text-xs text-slate-500">ISKAN eligibility check</div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      <Card onClick={() => handleJourneyClick('work')} className="bg-slate-50 border-dashed hover:border-slate-300 transition-colors cursor-pointer">
+                        <CardContent className="p-4 flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center"><Icons.Briefcase className="h-5 w-5 text-slate-400" /></div>
+                          <div>
+                            <div className="font-semibold text-sm">Work & Leave</div>
+                            <div className="text-xs text-slate-500">MOHRE / Employer sync</div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* Right Col: Assistant & Docs */}
+                <div className="space-y-6">
+                  
+                  {/* Interactive AI Assistant */}
+                  <InteractiveAIAssistant persona={personaKey} />
+
+                  {/* Documents Shelf */}
+                  <Card>
+                    <CardHeader className="pb-3 border-b border-slate-100">
+                      <CardTitle className="text-base flex items-center gap-2"><Icons.FileText className="h-4 w-4" /> Wallet & Docs</CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-4 space-y-3">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="flex items-center gap-2"><Icons.CheckCircle2 className="h-3 w-3 text-teal-600" /> Family Book</span>
+                        <Badge variant="outline" className="text-[10px] h-5">Verified</Badge>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="flex items-center gap-2"><Icons.Clock className="h-3 w-3 text-amber-500" /> Birth Cert (Draft)</span>
+                        <Badge variant="outline" className="text-[10px] h-5 bg-amber-50 text-amber-700 border-amber-200">Pending</Badge>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="flex items-center gap-2"><Icons.CheckCircle2 className="h-3 w-3 text-teal-600" /> Marriage Contract</span>
+                        <Badge variant="outline" className="text-[10px] h-5">Verified</Badge>
                       </div>
                     </CardContent>
                   </Card>
+
                 </div>
               </div>
-
-              {/* Footer */}
-              <div className="mt-10 mb-6 text-center text-xs text-slate-400">
-                This prototype focuses on the customer experience and the logical flow of life events inside TAMM.
-              </div>
-
-            </div> {/* Correctly closing max-w-7xl here */}
+            </div>
           </div>
         );
       }
