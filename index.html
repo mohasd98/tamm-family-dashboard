@@ -33,6 +33,12 @@
         to { opacity: 1; transform: translateY(0); }
       }
       .animate-slide-up { animation: slideUp 0.3s ease-out forwards; }
+
+      @keyframes popIn {
+        0% { transform: scale(0.5); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+      }
+      .animate-pop-in { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
     </style>
   </head>
   <body class="bg-slate-50 text-slate-900">
@@ -87,6 +93,11 @@
         List: getIcon("List"),
         Table2: getIcon("Table2"),
         ListTodo: getIcon("ListTodo"),
+        Edit3: getIcon("Edit3"),
+        Loader2: getIcon("Loader2"),
+        Eye: getIcon("Eye"),
+        EyeOff: getIcon("EyeOff"),
+        Gift: getIcon("Gift"),
       };
 
       // --- UI COMPONENTS ---
@@ -105,6 +116,8 @@
           outline: "border border-slate-200 bg-white hover:bg-slate-50 text-slate-900",
           ghost: "hover:bg-slate-100 text-slate-700",
           secondary: "bg-slate-100 text-slate-900 hover:bg-slate-200",
+          pink: "bg-pink-500 text-white hover:bg-pink-600 shadow-md shadow-pink-500/20",
+          blue: "bg-blue-500 text-white hover:bg-blue-600 shadow-md shadow-blue-500/20",
         };
         const sizes = { default: "h-10 px-4 py-2", sm: "h-8 rounded-lg px-3 text-xs", icon: "h-10 w-10" };
         return (
@@ -130,13 +143,21 @@
         </div>
       );
 
+      const Input = ({ className, ...props }) => (
+        <input
+          className={`flex h-10 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-700 disabled:cursor-not-allowed disabled:opacity-50 ${className || ''}`}
+          {...props}
+        />
+      );
+
       // --- DATA FACTORY ---
 
-      const getPersonas = () => ({
+      const getPersonas = (babyName, revealedGender) => ({
         citizen: {
           label: "Citizen family",
           familyName: "Al Nuaimi Family",
           parents: "Omar & Aisha",
+          expectedBaby: babyName ? `Baby ${babyName}` : (revealedGender ? `Baby ${revealedGender}` : "Expecting Baby"),
           location: "Abu Dhabi",
           benefitsLabel: "Family Book Path",
           features: ["Mabrouk Ma Yak", "Genome Testing", "School Seat Reserve"]
@@ -145,15 +166,16 @@
           label: "Resident family",
           familyName: "Khan Family",
           parents: "Hassan & Mariam",
+          expectedBaby: babyName ? `Baby ${babyName}` : (revealedGender ? `Baby ${revealedGender}` : "Expecting Baby"),
           location: "Abu Dhabi",
           benefitsLabel: "Resident Path",
           features: ["MOFA Attestation", "Embassy Passport", "Civil Marriage"]
         }
       });
 
-      const getJourneyData = (persona) => {
+      const getJourneyData = (persona, babyName, revealedGender) => {
         const isCitizen = persona === 'citizen';
-
+        
         // Dynamic Birth Journey
         const birthJourney = isCitizen ? {
           title: "Mabrouk Ma Yak",
@@ -164,8 +186,13 @@
           // Simple View Data
           steps: [
             { title: "Notification", desc: "Hospital submits birth details.", status: "completed" },
-            { title: "Photo & Name", desc: "Baby photo captured at hospital. You choose the name.", status: "current" },
-            { title: "Bundle Processing", desc: "We issue Birth Certificate, EID, and Passport together.", status: "upcoming" },
+            { 
+              title: "Photo & Name", 
+              desc: babyName ? `Named: ${babyName}` : "Baby photo captured. Choose name.", 
+              status: babyName ? "completed" : "current",
+              actionLabel: "Start Naming" 
+            },
+            { title: "Bundle Processing", desc: "We issue Birth Certificate, EID, and Passport together.", status: babyName ? "current" : "upcoming" },
             { title: "Delivery", desc: "Digital docs in Wallet. Physical cards delivered.", status: "upcoming" }
           ],
           // Detailed Master View Data
@@ -183,8 +210,13 @@
           status: "Action Required",
           steps: [
             { title: "Notification", desc: "Hospital submits birth details.", status: "completed" },
-            { title: "Birth Certificate", desc: "Review details and issue certificate.", status: "current" },
-            { title: "Attestation", desc: "Digital MOFA attestation (if needed).", status: "upcoming" },
+            { 
+              title: "Birth Certificate", 
+              desc: babyName ? `Certificate for ${babyName}` : "Review details and name baby.", 
+              status: babyName ? "completed" : "current",
+              actionLabel: "Issue Certificate" 
+            },
+            { title: "Attestation", desc: "Digital MOFA attestation (if needed).", status: babyName ? "current" : "upcoming" },
             { title: "Residency", desc: "Apply for Passport (Embassy) then Residency (ICP).", status: "upcoming" }
           ],
           details: [
@@ -264,13 +296,13 @@
             subtitle: "Antenatal to Delivery",
             icon: "Stethoscope",
             description: "Track your pregnancy milestones, appointments, and care plan.",
-            status: "Completed",
+            status: "In Progress",
             steps: [
               { title: "Confirm Pregnancy", desc: "Register your maternity file.", status: "completed" },
-              { title: "Care Plan", desc: "View your 9-visit antenatal schedule.", status: "completed" },
-              { title: "Pre-Capture IDs", desc: "Upload parent docs now to save time at birth.", status: "completed" },
-              { title: "Delivery Admission", desc: "Fast-track check-in at the hospital.", status: "completed" },
-              { title: "Birth Notification", desc: "Provider submits data.", status: "completed", systemNote: "Pre-filled from Malaffi" }
+              { title: "Care Plan", desc: "View your 9-visit antenatal schedule.", status: "current" },
+              { title: "Gender Reveal", desc: revealedGender ? `It's a ${revealedGender}!` : "Ultrasound results ready.", status: revealedGender ? "completed" : "current", actionLabel: revealedGender ? null : "Reveal Gender" },
+              { title: "Pre-Capture IDs", desc: "Upload parent docs now to save time at birth.", status: "upcoming" },
+              { title: "Birth Notification", desc: "Provider submits data.", status: "upcoming", systemNote: "Pre-filled from Malaffi" }
             ],
             details: [
               { stage: "Registration", touchpoint: "Confirm Pregnancy", channel: "TAMM Sahatna", entity: "DoH + Malaffi", enhancement: "Auto-draft from lab result" },
@@ -326,7 +358,6 @@
               { stage: "Permits", touchpoint: "Burial/Transport", channel: "TAMM Family Space", entity: "Municipalities", enhancement: "Unified permit flow" }
             ]
           },
-          // NEWLY ADDED DATA FOR PARALLEL SUPPORT
           housing: {
             title: "Housing & Support",
             subtitle: "ISKAN & Benefits",
@@ -365,7 +396,138 @@
 
       // --- COMPONENTS ---
 
-      function JourneyTimeline({ data }) {
+      function BabyNamingModal({ isOpen, onClose, onNameSubmit, persona }) {
+        const [firstNameEn, setFirstNameEn] = useState("");
+        const [firstNameAr, setFirstNameAr] = useState("");
+        const [isSubmitting, setIsSubmitting] = useState(false);
+
+        if (!isOpen) return null;
+
+        const handleSubmit = () => {
+          setIsSubmitting(true);
+          setTimeout(() => {
+            setIsSubmitting(false);
+            onNameSubmit(firstNameEn);
+            onClose();
+          }, 1500);
+        };
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl animate-in fade-in zoom-in duration-200">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-slate-900">Name Your Baby</h3>
+                <button onClick={onClose}><Icons.X className="h-5 w-5 text-slate-400" /></button>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="bg-blue-50 p-3 rounded-lg flex items-start gap-2">
+                  <Icons.Info className="h-5 w-5 text-blue-600 mt-0.5" />
+                  <p className="text-xs text-blue-800">
+                    We will check your chosen name against {persona === 'citizen' ? 'ICP' : 'Official'} naming rules.
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">First Name (English)</label>
+                  <Input value={firstNameEn} onChange={(e) => setFirstNameEn(e.target.value)} placeholder="e.g. Zayed" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">First Name (Arabic)</label>
+                  <Input value={firstNameAr} onChange={(e) => setFirstNameAr(e.target.value)} placeholder="e.g. زايد" className="text-right" />
+                </div>
+                <div className="pt-2">
+                  <div className="text-xs text-slate-500 mb-1">Family Name (Fixed)</div>
+                  <div className="font-semibold text-slate-900 bg-slate-100 px-3 py-2 rounded-lg">{persona === 'citizen' ? 'Al Nuaimi' : 'Khan'}</div>
+                </div>
+                <Button onClick={handleSubmit} className="w-full mt-2" disabled={!firstNameEn || !firstNameAr || isSubmitting}>
+                  {isSubmitting ? (<span className="flex items-center gap-2"><Icons.Loader2 className="h-4 w-4 animate-spin" /> Checking Rules...</span>) : "Confirm Name"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      function GenderRevealModal({ isOpen, onClose, onReveal }) {
+        const [isRevealed, setIsRevealed] = useState(false);
+        const [gender, setGender] = useState(null); // 'Boy' or 'Girl'
+
+        // Reset state when modal opens fresh
+        useEffect(() => {
+           if (isOpen && !isRevealed) {
+               // Simulate determining gender (for demo, we'll pick Boy)
+               setGender("Boy");
+           }
+        }, [isOpen, isRevealed]);
+
+        const handleReveal = () => {
+            setIsRevealed(true);
+            setTimeout(() => {
+                onReveal(gender);
+                // Don't auto close immediately, let them enjoy it
+            }, 500); 
+        };
+
+        const handleClose = () => {
+            onClose();
+            // Reset for next time if needed, but usually this is a one-time event
+            setTimeout(() => setIsRevealed(false), 500);
+        };
+        
+        if (!isOpen) return null;
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md">
+            <div className="bg-white rounded-3xl w-full max-w-sm p-0 shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300 relative">
+              <button onClick={handleClose} className="absolute top-4 right-4 z-10 p-2 bg-white/20 rounded-full hover:bg-white/40 transition-colors">
+                  <Icons.X className={`h-6 w-6 ${isRevealed ? 'text-white' : 'text-slate-400'}`} />
+              </button>
+
+              {!isRevealed ? (
+                <div className="p-8 text-center space-y-6">
+                    <div className="mx-auto w-24 h-24 bg-teal-50 rounded-full flex items-center justify-center mb-4">
+                        <Icons.Gift className="h-12 w-12 text-teal-600" />
+                    </div>
+                    <div>
+                        <h3 className="text-2xl font-bold text-slate-900 mb-2">Ready to see?</h3>
+                        <p className="text-slate-500 text-sm">
+                            The ultrasound results are in. You can reveal the gender now, or close this window to keep it a surprise.
+                        </p>
+                    </div>
+                    <div className="space-y-3">
+                        <Button onClick={handleReveal} className="w-full h-12 text-base shadow-lg shadow-teal-500/20">
+                            Reveal Gender
+                        </Button>
+                        <Button onClick={handleClose} variant="ghost" className="w-full">
+                            Keep it a Surprise
+                        </Button>
+                    </div>
+                    <div className="flex items-center justify-center gap-2 text-xs text-slate-400">
+                        <Icons.ShieldCheck className="h-3 w-3" /> Secure & Private
+                    </div>
+                </div>
+              ) : (
+                <div className={`p-10 text-center flex flex-col items-center justify-center min-h-[400px] transition-colors duration-1000 ${gender === 'Boy' ? 'bg-blue-500' : 'bg-pink-500'}`}>
+                    <div className="animate-pop-in">
+                        <div className="mx-auto w-32 h-32 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center mb-6 shadow-xl ring-4 ring-white/30">
+                            <Icons.Baby className="h-16 w-16 text-white" />
+                        </div>
+                        <h2 className="text-4xl font-extrabold text-white mb-2 tracking-tight">It's a {gender}!</h2>
+                        <p className="text-white/90 text-lg">Congratulations!</p>
+                    </div>
+                    <div className="mt-12 w-full">
+                         <Button onClick={handleClose} className="w-full bg-white text-slate-900 hover:bg-white/90 border-0 shadow-xl">
+                            Start Planning
+                         </Button>
+                    </div>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      }
+
+      function JourneyTimeline({ data, onAction }) {
         if (!data || !data.steps || !data.steps.length) return <div className="text-sm text-slate-400 italic p-4">Timeline available upon activation.</div>;
 
         return (
@@ -373,6 +535,7 @@
             {data.steps.map((step, i) => {
               const isCompleted = step.status === 'completed';
               const isCurrent = step.status === 'current';
+              const hasAction = step.actionLabel && isCurrent;
               
               return (
                 <div key={i} className="relative pl-6">
@@ -389,9 +552,21 @@
                     </div>
                     <span className="text-xs text-slate-500 mt-0.5">{step.desc}</span>
                     
-                    {isCurrent && (
+                    {hasAction && (
                       <div className="mt-3">
-                        <Button size="sm" className="h-8 text-xs rounded-lg">Action Required</Button>
+                        <Button 
+                          size="sm" 
+                          className={`h-8 text-xs rounded-lg ${step.title.includes('Gender') ? 'bg-indigo-600 hover:bg-indigo-700' : ''}`}
+                          onClick={() => onAction && onAction(step.actionLabel)}
+                        >
+                          {step.actionLabel} 
+                          {step.title.includes('Gender') ? <Icons.Eye className="ml-1.5 h-3 w-3" /> : <Icons.Edit3 className="ml-1.5 h-3 w-3" />}
+                        </Button>
+                      </div>
+                    )}
+                    {isCurrent && !hasAction && (
+                      <div className="mt-3">
+                         <Badge variant="amber" className="font-normal">In Progress</Badge>
                       </div>
                     )}
                   </div>
@@ -453,9 +628,6 @@
       }
 
       function JourneyProgressCard({ journeyKey, data }) {
-        // Safe check for data
-        if (!data || !data.steps) return null;
-
         const completedSteps = data.steps.filter(s => s.status === 'completed').length;
         const totalSteps = data.steps.length;
         const progressPercent = totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0;
@@ -525,7 +697,11 @@
               }
             } else if (lowerText.includes('apply')) {
                 if (lowerText.includes('housing')) {
-                    reply = "I've checked your Family Book status. You are eligible for Housing Assistance. I have auto-submitted your application. Reference: HSG-9921.";
+                    if (persona === 'citizen') {
+                        reply = "I've checked your Family Book status. You are eligible for Housing Assistance. I have auto-submitted your application. Reference: HSG-9921.";
+                    } else {
+                        reply = "Housing assistance via ISKAN is currently available for UAE Citizens. Please check the 'Work & Leave' section for employer support.";
+                    }
                 } else if (lowerText.includes('leave')) {
                     reply = "I have connected with your employer. Your Paternity Leave request for 5 days has been drafted. Status: Pending Employer Action.";
                 } else {
@@ -578,10 +754,14 @@
 
             <div className="p-3 bg-slate-800/50 space-y-3">
               <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
-                <button onClick={() => handleSend("Apply for Housing")} className="whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-700 hover:bg-slate-600 text-xs font-medium transition-colors">Apply Housing</button>
+                {persona === 'citizen' && (
+                  <button onClick={() => handleSend("Apply for Housing")} className="whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-700 hover:bg-slate-600 text-xs font-medium transition-colors">Apply Housing</button>
+                )}
                 <button onClick={() => handleSend("Request Leave")} className="whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-700 hover:bg-slate-600 text-xs font-medium transition-colors">Request Leave</button>
                 <button onClick={() => handleSend("Check eligibility")} className="whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-700 hover:bg-slate-600 text-xs font-medium transition-colors">Eligibility</button>
-                <button onClick={() => handleSend("How does Mabrouk Ma Yak work?")} className="whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-700 hover:bg-slate-600 text-xs font-medium transition-colors">Mabrouk Ma Yak</button>
+                {persona === 'citizen' && (
+                  <button onClick={() => handleSend("How does Mabrouk Ma Yak work?")} className="whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-700 hover:bg-slate-600 text-xs font-medium transition-colors">Mabrouk Ma Yak info</button>
+                )}
               </div>
               <div className="flex gap-2">
                 <input 
@@ -602,18 +782,41 @@
 
       function LifeEventsMedicalHubDashboard() {
         const [personaKey, setPersonaKey] = useState("citizen");
-        const [activeJourneyKey, setActiveJourneyKey] = useState("premarital");
+        const [activeJourneyKey, setActiveJourneyKey] = useState("maternity"); // Default to maternity to see feature
         const [viewMode, setViewMode] = useState("timeline"); // "timeline" or "table"
+        
+        // --- STATES ---
+        const [babyName, setBabyName] = useState(null);
+        const [revealedGender, setRevealedGender] = useState(null);
 
-        const personas = getPersonas();
+        const [isNamingModalOpen, setIsNamingModalOpen] = useState(false);
+        const [isRevealModalOpen, setIsRevealModalOpen] = useState(false);
+
+        const personas = getPersonas(babyName, revealedGender);
         const activePersona = personas[personaKey];
-        const JOURNEY_DATA = useMemo(() => getJourneyData(personaKey), [personaKey]);
+        // Pass babyName & gender to data factory
+        const JOURNEY_DATA = useMemo(() => getJourneyData(personaKey, babyName, revealedGender), [personaKey, babyName, revealedGender]);
 
         // Handler defined clearly in scope
         const handleJourneyClick = (key) => {
           setActiveJourneyKey(key);
-          // Only switch view mode if we are switching journeys (optional, kept simple)
-          // setViewMode('timeline'); 
+        };
+
+        const handleTimelineAction = (actionLabel) => {
+          if (actionLabel === "Start Naming" || actionLabel === "Issue Certificate") {
+            setIsNamingModalOpen(true);
+          }
+          if (actionLabel === "Reveal Gender") {
+            setIsRevealModalOpen(true);
+          }
+        };
+
+        const handleNameSubmit = (name) => {
+          setBabyName(name);
+        };
+
+        const handleGenderReveal = (gender) => {
+          setRevealedGender(gender);
         };
 
         // Navigation Spine Items
@@ -648,13 +851,13 @@
                 </div>
                 <div className="bg-white rounded-xl border border-slate-200 p-1 flex items-center shadow-sm">
                   <button 
-                    onClick={() => setPersonaKey("citizen")}
+                    onClick={() => { setPersonaKey("citizen"); setBabyName(null); setRevealedGender(null); }}
                     className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${personaKey === 'citizen' ? 'bg-slate-900 text-white shadow' : 'text-slate-500 hover:bg-slate-50'}`}
                   >
                     Citizen
                   </button>
                   <button 
-                    onClick={() => setPersonaKey("resident")}
+                    onClick={() => { setPersonaKey("resident"); setBabyName(null); setRevealedGender(null); }}
                     className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${personaKey === 'resident' ? 'bg-slate-900 text-white shadow' : 'text-slate-500 hover:bg-slate-50'}`}
                   >
                     Resident
@@ -666,13 +869,17 @@
               <Card className="bg-white">
                 <CardContent className="p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                   <div className="flex items-center gap-4">
-                    <div className="h-14 w-14 rounded-full bg-slate-100 flex items-center justify-center border-2 border-white shadow-sm">
-                      <Icons.User className="h-7 w-7 text-slate-400" />
+                    <div className={`h-14 w-14 rounded-full flex items-center justify-center border-2 border-white shadow-sm transition-colors ${revealedGender ? (revealedGender === 'Boy' ? 'bg-blue-100 text-blue-600' : 'bg-pink-100 text-pink-600') : 'bg-slate-100 text-slate-400'}`}>
+                      {revealedGender ? <Icons.Baby className="h-7 w-7" /> : <Icons.User className="h-7 w-7" />}
                     </div>
                     <div>
                       <h2 className="text-xl font-bold text-slate-900">{activePersona.familyName}</h2>
                       <div className="text-sm text-slate-500 flex items-center gap-2 mt-1">
                         <span>{activePersona.parents}</span>
+                        <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                        <span className={`flex items-center gap-1 font-medium ${revealedGender ? (revealedGender === 'Boy' ? 'text-blue-700' : 'text-pink-700') : 'text-teal-700'}`}>
+                          <Icons.Baby className="h-3 w-3" /> {babyName ? `Named: ${babyName}` : activePersona.expectedBaby}
+                        </span>
                         <span className="w-1 h-1 rounded-full bg-slate-300"></span>
                         <span className="flex items-center gap-1"><Icons.MapPin className="h-3 w-3" /> {activePersona.location}</span>
                       </div>
@@ -739,7 +946,10 @@
                     <Card className="bg-white overflow-hidden min-h-[300px]">
                       <div className="p-6">
                         {viewMode === 'timeline' ? (
-                          <JourneyTimeline data={JOURNEY_DATA[activeJourneyKey]} />
+                          <JourneyTimeline 
+                            data={JOURNEY_DATA[activeJourneyKey]} 
+                            onAction={handleTimelineAction}
+                          />
                         ) : (
                           <JourneyMasterTable data={JOURNEY_DATA[activeJourneyKey]} />
                         )}
@@ -803,6 +1013,20 @@
 
                 </div>
               </div>
+
+              {/* MODALS */}
+              <BabyNamingModal 
+                isOpen={isNamingModalOpen} 
+                onClose={() => setIsNamingModalOpen(false)}
+                onNameSubmit={handleNameSubmit}
+                persona={personaKey}
+              />
+              <GenderRevealModal
+                isOpen={isRevealModalOpen}
+                onClose={() => setIsRevealModalOpen(false)}
+                onReveal={handleGenderReveal}
+              />
+
             </div>
           </div>
         );
